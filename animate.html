@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Therapy Chat</title>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js">
+        
+    </script>
+    <style>
+        :root {
+            --primary-color: #7C3AED; /* Modern purple */
+            --secondary-color: #4F46E5; /* Deep indigo */
+            --accent-color: #8B5CF6; /* Lighter purple */
+            --success-color: #10B981; /* Modern green */
+            --text-primary: #F9FAFB;
+            --text-secondary: #E5E7EB;
+            --bg-transparent-dark: rgba(17, 24, 39, 0.7);
+            --bg-transparent-light: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-backdrop-filter: none !important; /* Ensure no blur effects for Safari */
+            backdrop-filter: none !important; /* Ensure no blur effects */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            display: flex;
+            color: white;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        /* Three.js background */
+        #background-frame {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            pointer-events: auto; /* Enable interactions */
+            z-index: 0;
+            opacity: 1;
+        }
+
+        /* Particles */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        /* Chat interface */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            min-width: 260px;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            -webkit-backdrop-filter: blur(10px); /* Added for Safari support */
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            z-index: 2;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--accent-glow);
+        }
+
+        .main {
+            flex: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: transparent;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+            margin-left: 260px; /* Adjusted to start after sidebar */
+            padding-left: 0; /* Remove any padding */
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            scroll-behavior: smooth;
+            margin-top: 5px; /* Start 5px above */
+        }
+
+        .message {
+            width: 100%;
+            display: flex;
+            padding: 0.5rem;
+            animation: messageAppear 0.3s ease-out;
+            margin: 0; /* Remove any margin */
+        }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        .message-content {
+            max-width: 80%;
+            width: auto;
+            display: flex;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.122);
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .message-content:active {
+            transform: scale(0.98);
+            animation: pulseGreenBorder 0.5s ease-in-out;
+            border-color: rgba(16, 185, 129, 0.7);
+        }
+
+        .message-content:hover {
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 6px 15px rgba(16, 185, 129, 0.1);
+        }
+
+        .message-content.clicked {
+            animation: pulseGreenBorder 0.5s ease-in-out;
+        }
+
+        .message-content img {
+        max-width: 100%;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+        .input-container {
+            padding: 1rem;
+            background: var(--bg-transparent-dark);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 0;
+        }
+        ::selection {
+        background-color: transparent; /* Make the default highlight transparent */
+        color: #fff; /* Light text */
+        text-shadow: 2px 2px 10px #ff00ff, -2px -2px 10px #00ffff; /* Gradient illusion */
+        }
+
+
+        .input-wrapper {
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+            padding: 0 1rem;
+        }
+
+        .input-form {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 44px;
+            max-height: 200px;
+            padding: 0.75rem 7rem 0.75rem 1rem; /* Increased right padding for buttons */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            background: var(--bg-transparent-light);
+            color: var(--text-primary);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        .button-container {
+            position: absolute;
+            right: 0.8rem;
+            bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.3rem;
+            border-radius: 0.8rem;
+        }
+
+        .action-btn {
+            padding: 0.6rem;
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.6rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            color: var(--success-color);
+            background: rgba(16, 185, 129, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btn.recording {
+            color: #ef4444;
+            animation: pulse 1.5s infinite;
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(79, 70, 229, 0.2) 100%);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.3) 100%);
+            color: var(--success-color);
+        }
+
+        /* Prompts popup */
+        .prompts-popup {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            width: 150px; /* Reduced width */
+            background: rgba(0, 0, 0, 0.95);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 0.5rem;
+            display: none;
+            z-index: 1000;
+
+        }
+
+        .prompts-popup.show {
+            display: block;
+        }
+
+        .prompt-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .prompt-btn:hover {
+            background: rgba(0, 255, 0, 0.2);
+            padding: 0.75rem 1rem;
+            background-size: 10% 20%;
+            border-radius: 10px;
+        }
+
+        .disclaimer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            margin-top: 0.1rem;
+        }
+
+        /* Edit button styles */
+        .edit-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            padding: 0.25rem;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.6);
+            border-radius: 0.25rem;
+            transition: all 0.2s ease;
+            display: none;
+        }
+        
+        .edit-btn:hover {
+            color: white;
+            background: rgba(0, 255, 0, 0.2);
+        }
+
+        .message-content:hover .edit-btn {
+            display: block;
+        }
+
+        /* Loading screen styles */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .loading-message {
+            color: #fff;
+            font-size: 1.5rem;
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+            line-height: 1.8;
+            font-family: 'Georgia', serif;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease-out forwards 0.5s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hide main content initially */
+        .main-content {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        .main-content.visible {
+            opacity: 1;
+        }
+
+        /* Enhanced sidebar button styles */
+        .sidebar button {
+            width: 90%;
+            margin: 0.4rem auto;
+            padding: 0.8rem 1.2rem;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 1.5rem;
+            background: linear-gradient(135deg, 
+                rgba(124, 58, 237, 0.3) 0%, 
+                rgba(79, 70, 229, 0.3) 100%
+            );
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-align: left;
+        }
+
+        .sidebar button svg {
+            min-width: 24px;
+            height: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, 
+                rgba(139, 92, 246, 0.4) 0%, 
+                rgba(79, 70, 229, 0.4) 100%
+            );
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .sidebar button:hover svg {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.5));
+        }
+
+        .sidebar button span {
+            flex: 1;
+        }
+
+        .sidebar button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(124, 58, 237, 0.2);
+        }
+
+        /* Add spacing between sidebar buttons */
+        .sidebar a {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar a:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Input area and button container styles */
+        .input-container {
+            padding: 1rem;
+            background: var(--bg-transparent-dark);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 0;
+        }
+
+        .input-wrapper {
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+            padding: 0 1rem;
+        }
+
+        .input-form {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 44px;
+            max-height: 200px;
+            padding: 0.75rem 7rem 0.75rem 1rem; /* Increased right padding for buttons */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            background: var(--bg-transparent-light);
+            color: var(--text-primary);
+        }
+
+        .button-container {
+            position: absolute;
+            right: 0.8rem;
+            bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.3rem;
+            border-radius: 0.8rem;
+        }
+
+        .action-btn {
+            padding: 0.6rem;
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.6rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            color: var(--success-color);
+            background: rgba(16, 185, 129, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+        }
+
+        .action-btn.recording {
+            color: #ef4444;
+            animation: pulse 1.5s infinite;
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(79, 70, 229, 0.2) 100%);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.3) 100%);
+            color: var(--success-color);
+        }
+
+        /* Add the pulse animation keyframes */
+        @keyframes pulseGreenBorder {
+            0% {
+                border-color: rgba(16, 185, 129, 0.7);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                border-color: rgba(16, 185, 129, 0.3);
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+            100% {
+                border-color: rgba(16, 185, 129, 0);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        /* Copy button styling for assistant messages */
+.message.assistant .copy-btn {
+    display: none;
+    position: absolute;
+    top: 0.2rem;
+    right: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0);
+    border: none;
+    padding: 0rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.message.assistant:hover .copy-btn {
+    display: block;
+}
+
+.message.assistant .copy-btn:hover {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+    </style>
+
+
+    <style>
+    /* ... existing styles ... */
+
+    /* Only changing message alignment */
+    .message.assistant {
+        justify-content: flex-start; /* Align assistant messages to left */
+    }
+
+    .message.assistant .message-content {
+        margin-right: auto;
+        margin-left: 0;
+    }
+
+    .message.user {
+        justify-content: flex-end; /* Align user messages to right */
+    }
+
+    .message.user .message-content {
+        margin-left: auto;
+        margin-right: 0;
+    }
+
+    /* Code block styling */
+.code-block {
+    background-color: #2d2d2d;
+    color: #f8f8f2;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    margin-top: 0.5rem;
+}
+
+/* For Chromium-based browsers (including Brave) */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e1e1e;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #8B5CF6;
+  border-radius: 10px;
+  border: 3px solid #1e1e1e;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #8B5CF6 #1e1e1e;
+}
+
+
+</style>
+
+<style>
+    /* ... existing styles ... */
+
+    /* Code block styling */
+    .code-block {
+        background-color: #1e1e1e; /* Darker background */
+        color: #f8f8f2;
+        padding: 1rem;
+        border-radius: 8px;
+        font-family: 'Courier New', Courier, monospace;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        margin-top: 0.5rem;
+    }
+
+    /* Syntax highlighting using Prism.js */
+    .token.comment, .token.prolog, .token.doctype, .token.cdata {
+        color: #999;
+    }
+    .token.punctuation {
+        color: #ccc;
+    }
+    .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted {
+        color: #f92672;
+    }
+    .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted {
+        color: #a6e22e;
+    }
+    .token.operator, .token.entity, .token.url, .token.variable {
+        color: #66d9ef;
+    }
+    .token.atrule, .token.attr-value, .token.function, .token.class-name {
+        color: #e6db74;
+    }
+    .token.keyword {
+        color: #f92672;
+    }
+    .token.regex, .token.important {
+        color: #fd971f;
+    }
+    .token.important, .token.bold {
+        font-weight: bold;
+    }
+    .token.italic {
+        font-style: italic;
+    }
+    .token.entity {
+        cursor: help;
+    }
+
+        /* ... existing styles ... */
+
+    /* Code block styling */
+    .code-block {
+        background-color: #1e1e1e; /* Darker background */
+        color: #f8f8f2;
+        padding: 1rem;
+        border-radius: 8px;
+        font-family: 'Courier New', Courier, monospace;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        margin-top: 0.5rem;
+    }
+
+    /* Syntax highlighting using Prism.js */
+    .token.comment, .token.prolog, .token.doctype, .token.cdata {
+        color: #999;
+    }
+    .token.punctuation {
+        color: #ccc;
+    }
+    .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted {
+        color: #f92672;
+    }
+    .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted {
+        color: #a6e22e;
+    }
+    .token.operator, .token.entity, .token.url, .token.variable {
+        color: #66d9ef;
+    }
+    .token.atrule, .token.attr-value, .token.function, .token.class-name {
+        color: #e6db74;
+    }
+    .token.keyword {
+        color: #f92672;
+    }
+    .token.regex, .token.important {
+        color: #fd971f;
+    }
+    .token.important, .token.bold {
+        font-weight: bold;
+    }
+    .token.italic {
+        font-style: italic;
+    }
+    .token.entity {
+        cursor: help;
+    }
+
+    /* Ensure text breaks lines appropriately */
+    .text {
+        white-space: pre-wrap; /* Preserve whitespace and wrap text */
+        word-wrap: break-word; /* Break long words */
+    }
+</style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-message">
+            "Take a deep breath... you're in a safe place now."
+        </div>
+    </div>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content" id="mainContent">
+        <div id="container"></div>
+        <!-- Three.js background iframe -->
+        <iframe id="background-frame" src="extra cards.html"></iframe>
+        
+        <!-- Particles -->
+        <div id="particles-js"></div>
+        
+        <!-- Chat interface -->
+
+        <div class="sidebar">
+            <!-- Header Image -->
+            <div class="sidebar-header" style="text-align: center; margin-bottom: 1rem;">
+              <a href="./Landing%20page.html" style="text-decoration: none;">
+                  <img src="image-Photoroom (3) (1).png" alt="Header Image" style="max-width: 100%; height: auto;">
+              </a>
+            </div>
+          
+            <a href="./Landing page.html" style="text-decoration: none;">
+              <button class="new-chat-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4H9v4a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9z"></path>
+                </svg>
+                <span>AI Therapy Chat</span>
+              </button>
+            </a>
+            <a href="about us.html" style="text-decoration: none;" onclick="window.location.href='about us.html'; return false;">
+              <button class="new-chat-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 16v-4"></path>
+                  <path d="M12 8h.01"></path>
+                </svg>
+                <span>About Us</span>
+              </button>
+            </a>
+            <button class="new-chat-btn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <span>Settings</span>
+            </button>
+            <button class="new-chat-btn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" x2="12" y1="19" y2="22"></line>
+              </svg>
+              <span>Voices</span>
+            </button>
+          </div>
+          
+        
+        <div class="main">
+            <div class="chat-container" id="chat-container">
+                <!-- Messages will be added here dynamically -->
+            </div>
+
+            <!-- Input area -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <form class="input-form" id="chat-form">
+                        <textarea 
+                            placeholder="Send a message..."
+                            id="message-input"
+                        ></textarea>
+                        <div class="button-container">
+                            <button type="button" class="action-btn" id="add-image-btn" title="Add Image">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </button>
+                            <button type="button" class="action-btn" id="voice-btn" title="Voice input">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <line x1="12" x2="12" y1="19" y2="22"></line>
+                                </svg>
+                            </button>
+                            <button type="button" class="action-btn" id="prompts-btn" title="Quick prompts">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m18 15-6-6-6 6"/>
+                                </svg>
+                            </button>
+                            <button type="submit" class="action-btn send-btn" id="send-button" disabled title="Send Message">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                        <!-- Quick prompts popup -->
+                        <div class="prompts-popup" id="prompts-popup">
+                            <button class="prompt-btn">I am feeling happy😀</button>
+                            <button class="prompt-btn">I am feeling sad😔</button>
+                            <button class="prompt-btn">I am feeling frustrated😤</button>
+                            <button class="prompt-btn">I am feeling angry😠</button>
+                            <button class="prompt-btn">I am feeling anxious😰</button>
+                        </div>
+                    </form>
+                    <p class="disclaimer">
+                        AI Therapy Chatbot may produce inaccurate information about people, places, or facts.
+                    </p>
+                </div>
+            </div>
+            <div id="emoji-rain-container"></div>
+        </div>
+    </div>
+
+    <!-- Your existing scripts -->
+    <script>
+        // DOM Elements
+        const chatContainer = document.getElementById('chat-container');
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const promptsBtn = document.getElementById('prompts-btn');
+        const promptsPopup = document.getElementById('prompts-popup');
+        const voiceBtn = document.getElementById('voice-btn');
+        const promptButtons = document.querySelectorAll('.prompt-btn');
+
+        // Add this line to declare recognition globally
+        let recognition;
+        let micPermissionGranted = false;
+
+        // Request mic permission once on page load
+        async function requestMicPermissionOnce() {
+            if (!('mediaDevices' in navigator)) return;
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+                micPermissionGranted = true;
+            } catch (err) {
+                micPermissionGranted = false;
+                addMessage('Microphone access denied. Please allow mic access for voice typing.', 'assistant', false);
+            }
+        }
+
+        // Call this on page load
+        window.addEventListener('DOMContentLoaded', requestMicPermissionOnce);
+
+        // State variables
+        let isListening = false;
+        let silenceTimeout;
+        let isBotSpeaking = false;
+        let lastInputWasVoice = false;
+
+        // Initialize Speech Recognition
+        function initializeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    isListening = true;
+                    lastInputWasVoice = true;
+                    voiceBtn.classList.add('recording');
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = Array.from(event.results)
+                        .map(result => result[0].transcript)
+                        .join('');
+                    messageInput.value = transcript;
+                    messageInput.dispatchEvent(new Event('input'));
+                    clearTimeout(silenceTimeout);
+                    silenceTimeout = setTimeout(() => {
+                        if (isListening) {
+                            stopVoiceRecording();
+                            chatForm.requestSubmit();
+                        }
+                    }, 3000);
+                };
+
+                recognition.onend = () => {
+                    isListening = false;
+                    voiceBtn.classList.remove('recording');
+                };
+
+                recognition.onerror = (event) => {
+                    isListening = false;
+                    voiceBtn.classList.remove('recording');
+                    addMessage('Voice recognition error. Please try again.', 'assistant', false);
+                };
+            } else {
+                addMessage('Voice recognition is not supported in your browser. Please try a different browser.', 'assistant', false);
+            }
+        }
+
+        function stopVoiceRecording() {
+            if (recognition) {
+                recognition.stop();
+                clearTimeout(silenceTimeout);
+            }
+            isListening = false;
+            voiceBtn.classList.remove('recording');
+        }
+
+        voiceBtn.addEventListener('click', () => {
+            if (!micPermissionGranted) {
+                requestMicPermissionOnce().then(() => {
+                    if (micPermissionGranted) {
+                        if (!recognition) initializeSpeechRecognition();
+                        recognition.start();
+                    }
+                });
+                return;
+            }
+            if (!recognition) initializeSpeechRecognition();
+            recognition.start();
+        });
+
+        // --- Bot Speech Synthesis ---
+        function speakResponse(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop any ongoing speech
+                isBotSpeaking = true;
+                const utterance = new SpeechSynthesisUtterance(text);
+                const voices = window.speechSynthesis.getVoices();
+                // Prefer Google female voices
+                const preferredVoices = voices.filter(voice =>
+                    voice.name.includes('Google UK English Female') ||
+                    voice.name.includes('Google US English Female') ||
+                    voice.name.includes('Microsoft Zira') ||
+                    voice.name.includes('Samantha')
+                );
+                utterance.voice = preferredVoices.length > 0 ? preferredVoices[0] : voices[0];
+                utterance.lang = 'en-US';
+                utterance.rate = 1.1;
+                utterance.pitch = 1.4;
+                utterance.volume = 1;
+                utterance.onend = () => { isBotSpeaking = false; };
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Stop bot speech if user sends another message
+        chatForm.addEventListener('submit', (e) => {
+            if (isBotSpeaking) {
+                window.speechSynthesis.cancel();
+                isBotSpeaking = false;
+            }
+        });
+
+        // --- Chat Form Submit Handler ---
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (!message) return;
+            messageInput.disabled = true;
+            // Add user message
+            addMessage(message, 'user');
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            // Show loading
+            const loadingMessage = document.createElement('div');
+            loadingMessage.className = 'message assistant';
+            loadingMessage.innerHTML = '<div class="message-content"><div class="avatar">🤔</div><div class="text">Thinking...</div></div>';
+            chatContainer.appendChild(loadingMessage);
+            // Get AI response
+            let response = '';
+            try {
+                response = await sendMessage(message);
+            } catch (error) {
+                response = 'Sorry, there was an error.';
+            }
+            loadingMessage.remove();
+            if (response) {
+                addMessage(response, 'assistant');
+                if (lastInputWasVoice) {
+                    speakResponse(response);
+                    lastInputWasVoice = false;
+                }
+            }
+            messageInput.disabled = false;
+            messageInput.focus();
+        });
+
+        // Initialize particles.js
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 80 },
+                color: { value: "#6366f1" },
+                shape: { type: "circle" },
+                opacity: {
+                    value: 0.2,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 2,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#ffffff",
+                    opacity: 0.1,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: "grab"
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: "push"
+                    },
+                    resize: true
+                }
+            },
+            retina_detect: true
+        });
+
+        // Magnetic effect function
+        function handleMagneticEffect(element, event, proximity, isText = false) {
+            const rect = element.getBoundingClientRect();
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+            const elementCenterX = rect.left + rect.width / 2;
+            const elementCenterY = rect.top + rect.height / 2;
+            const deltaX = mouseX - elementCenterX;
+            const deltaY = mouseY - elementCenterY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+            if (distance < proximity) {
+                const power = (proximity - distance) / proximity;
+                // For text elements, increase the effect
+                const factor = isText ? 0.7 : 0.5;
+                const maxMove = isText ? 15 : 30; // Text moves up to 15px, others up to 50px
+                const translateX = deltaX * power * factor * (maxMove / 20);
+                const translateY = deltaY * power * factor * (maxMove / 20);
+                element.style.transform = `translate(${translateX}px, ${translateY}px)`;
+            } else {
+                element.style.transform = 'translate(0, 0)';
+            }
+        }
+
+        // Apply the magnetic effect to all buttons, chat bubbles, and text elements
+        document.addEventListener('mousemove', (e) => {
+            // Apply to all buttons
+            document.querySelectorAll('button').forEach(button => {
+                button.classList.add('magnetic-element');
+                handleMagneticEffect(button, e, 100);
+            });
+
+            // Apply to chat bubbles and texts inside them
+            document.querySelectorAll('.message-content').forEach(bubble => {
+                bubble.classList.add('magnetic-element');
+                handleMagneticEffect(bubble, e, 100);
+
+                // Now, also apply a stronger effect to text within the bubble
+                const textElement = bubble.querySelector('.text');
+                if (textElement) {
+                    handleMagneticEffect(textElement, e, 100, true);
+                }
+            });
+        });
+
+        // Voice timeout function
+        function resetVoiceTimeout() {
+            clearTimeout(silenceTimeout);
+            silenceTimeout = setTimeout(() => {
+                if (isListening && messageInput.value.trim()) {
+                    stopVoiceRecording();
+                    chatForm.requestSubmit();
+                }
+            }, 2000);
+        }
+
+        function startVoiceRecording() {
+            if (!recognition) return;
+
+            isListening = true;
+            isBotSpeaking = true;
+            voiceBtn.classList.add('recording');
+            recognition.start();
+        }
+
+        function stopVoiceRecording() {
+            if (!recognition) return;
+
+            isListening = false;
+            voiceBtn.classList.remove('recording');
+            recognition.stop();
+            clearTimeout(silenceTimeout);
+        }
+
+        // API Configuration
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        
+        // API Functions
+        async function sendMessage(message) {
+            try {
+                console.log('Sending message:', message);
+                const response = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Received data:', data);
+                
+                if (data.status === 'error') {
+                    throw new Error(data.response || 'Unknown error occurred');
+                }
+                
+                return data.response;
+            } catch (error) {
+                console.error('Error in sendMessage:', error);
+                throw error;
+            }
+        }
+
+        // UI Functions
+        function addMessage(text, role, isEditable = true) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.style.position = 'relative'; // for copy button positioning
+
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.innerHTML = role === 'user'
+                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>';
+            
+            const textDiv = document.createElement('div');
+            textDiv.className = 'text';
+            textDiv.innerHTML = text;
+
+            contentDiv.appendChild(avatar);
+            contentDiv.appendChild(textDiv);
+            messageDiv.appendChild(contentDiv);
+            chatContainer.appendChild(messageDiv);
+            
+            chatContainer.scrollTo({
+                top: chatContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+
+            // Speak out the assistant's response
+            if (role === 'assistant') {
+                speakResponse(text);
+            }
+        }
+
+        function togglePromptsPopup() {
+            isPromptsVisible = !isPromptsVisible;
+            promptsPopup.classList.toggle('show');
+        }
+
+        // Event Listeners
+        messageInput.addEventListener('input', () => {
+            sendButton.disabled = !messageInput.value.trim();
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 200) + 'px';
+        });
+
+        promptsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            togglePromptsPopup();
+        });
+
+        promptButtons.forEach(button => {
+            button.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const promptText = button.textContent;
+                togglePromptsPopup();
+                
+                addMessage(promptText, 'user');
+                const response = await sendMessage(promptText);
+                addMessage(response, 'assistant');
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (isPromptsVisible && !promptsPopup.contains(e.target) && e.target !== promptsBtn) {
+                togglePromptsPopup();
+            }
+        });
+
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (!messageInput.value.trim()) return;
+                chatForm.requestSubmit();
+            }
+        });
+
+        // Global variables for shake detection
+        let shakeData = [];
+        const shakeThreshold = 4000; // Adjust this value as needed
+        let shakeCooldown = false;
+
+        // Listen for mousemove events for shake detection
+        document.addEventListener('mousemove', (e) => {
+            const now = Date.now();
+            // Record the current mouse position with its timestamp
+            shakeData.push({ time: now, x: e.clientX, y: e.clientY });
+            
+            // Remove events older than 2 seconds
+            shakeData = shakeData.filter(item => now - item.time < 4000);
+            
+            // Calculate total distance moved in the last 2 seconds
+            let totalDistance = 0;
+            for (let i = 1; i < shakeData.length; i++) {
+                const dx = shakeData[i].x - shakeData[i - 1].x;
+                const dy = shakeData[i].y - shakeData[i - 1].y;
+                totalDistance += Math.sqrt(dx * dx + dy * dy);
+            }
+            
+            // If the movement exceeds the threshold and we're not in cooldown, trigger the prompt
+            if (totalDistance > shakeThreshold && !shakeCooldown) {
+                shakeCooldown = true;
+                addMessage("I am feeling anxious", 'user');
+                sendMessage("I am feeling anxious").then(response => {
+                    addMessage(response, 'assistant');
+                });
+                // Reset cooldown after 3 seconds to prevent repeated triggers
+                setTimeout(() => {
+                    shakeCooldown = false;
+                }, 4000);
+                shakeData = [];
+            }
+        });
+
+        // Global variables for rapid key pressing detection
+        let keyPressData = [];
+        const keyPressThreshold = 20; // number of key presses required
+        const keyPressTimeWindow = 2000; // time window in ms (2 seconds)
+        let keyPressCooldown = false;
+
+        document.addEventListener('keydown', (e) => {
+            // Ignore key presses when the focus is on the message input (to avoid interfering with normal typing)
+            if (e.target === messageInput) return;
+            
+            const now = Date.now();
+            keyPressData.push(now);
+            // Only keep key presses within the last 2 seconds
+            keyPressData = keyPressData.filter(time => now - time < keyPressTimeWindow);
+
+            // If the number of key presses exceeds the threshold and we're not in cooldown, trigger the angry prompt
+            if (!keyPressCooldown && keyPressData.length >= keyPressThreshold) {
+                keyPressCooldown = true;
+                addMessage("I am feeling angry", 'user');
+                sendMessage("I am feeling angry").then(response => {
+                    addMessage(response, 'assistant');
+                });
+                // Reset cooldown after 4 seconds
+                setTimeout(() => {
+                    keyPressCooldown = false;
+                }, 4000);
+                keyPressData = [];
+            }
+        });
+
+        class VoiceHandler {
+            constructor() {
+                this.isSending = false;
+                this.recognition = null;
+                this.isListening = false;
+                this.isBotSpeaking = false;
+                this.voiceTimeout = null;
+                this.isPromptsVisible = false;
+                this.shakeData = [];
+                this.shakeThreshold = 4000;
+                this.shakeCooldown = false;
+                this.keyPressData = [];
+                this.keyPressThreshold = 20;
+                this.keyPressTimeWindow = 2000;
+                this.keyPressCooldown = false;
+            }
+
+            async sendMessage() {
+                const textarea = document.querySelector('textarea');
+                const message = textarea.value.trim();
+                
+                if (message && !this.isSending) {
+                    this.isSending = true;
+                    this.stopRecording();
+
+                    try {
+                        // Trigger the Three.js animation BEFORE sending the message
+                        document.getElementById('background-frame').contentWindow.triggerExpansion();
+
+                        // Use the existing form submit handler
+                        const form = document.querySelector('form');
+                        if (form) {
+                            textarea.value = message;
+                            form.dispatchEvent(new Event('submit'));
+                            textarea.value = '';
+                        }
+                    } catch (error) {
+                        console.error('Error sending message:', error);
+                        this.isSending = false;
+                    }
+                }
+            }
+
+            startRecording() {
+                if (this.recognition && !this.isSending) {
+                    try {
+                        this.recognition.start();
+                        // Remove the animation trigger from here
+                        document.querySelector('.voice-btn').classList.add('recording');
+                    } catch (e) {
+                        console.error('Recognition already started:', e);
+                    }
+                }
+
+                // ... rest of the voice handler code ...
+            }
+
+            // ... rest of the voice handler code ...
+        }
+
+        // Update the form submit handler to ensure animation triggers
+        document.querySelector('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // Trigger the Three.js animation
+            document.getElementById('background-frame').contentWindow.triggerExpansion();
+            // ... rest of your form submit handling ...
+        });
+
+        // Update the connection test
+        async function testBackendConnection() {
+            try {
+                console.log('Testing backend connection...');
+                const response = await fetch(`${API_BASE_URL}/test`);
+                
+                console.log('Test response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Test response data:', data);
+                
+                if (data.status === 'success') {
+                    console.log('Connection successful');
+                    addMessage("Hello! I'm Blissy😊, your AI therapist. How are you feeling today?", 'assistant');
+                    return true;
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Backend connection failed:', error);
+                
+                return false;
+            }
+        }
+
+        // Initialize connection test
+        document.addEventListener('DOMContentLoaded', testBackendConnection);
+
+        // Add this at the beginning of your script section
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const mainContent = document.getElementById('mainContent');
+
+            // Start fade out after 3 seconds
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                mainContent.classList.add('visible');
+                
+                // Remove loading screen after fade out
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 1000);
+            }, 3000);
+        });
+
+        // Chat bubble click animation handler
+        document.addEventListener('click', (e) => {
+            const bubble = e.target.closest('.message-content');
+            if (bubble) {
+                bubble.classList.remove('clicked');
+                // Trigger reflow
+                void bubble.offsetWidth;
+                bubble.classList.add('clicked');
+                
+                // Remove the class after animation completes
+                setTimeout(() => {
+                    bubble.classList.remove('clicked');
+                }, 500);
+            }
+        });
+    </script>
+
+    <script>
+        // Request microphone access and record audio for a few seconds
+        async function recordAndSendAudio() {
+            try {
+                // Request audio stream from user
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const mediaRecorder = new MediaRecorder(stream);
+                let audioChunks = [];
+                
+                // Collect audio data as it becomes available
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    audioChunks.push(event.data);
+                });
+                
+                // When recording stops, create a Blob and send it to the backend
+                mediaRecorder.addEventListener("stop", () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const formData = new FormData();
+                    formData.append("file", audioBlob, "recording.wav");
+                    
+                    fetch("http://127.0.0.1:8000/voice_emotion", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.error){
+                            console.error("Error:", data.error);
+                        } else {
+                            console.log("Detected emotion:", data.emotion);
+                            // You can then use the detected emotion to update your UI or modify AI responses
+                        }
+                    })
+                    .catch(error => console.error("Error sending audio:", error));
+                });
+                
+                // Start recording, then stop after 3 seconds
+                mediaRecorder.start();
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                }, 3000); // Adjust duration as needed
+                
+            } catch (error) {
+                console.error("Error accessing microphone:", error);
+            }
+        }
+        
+        // Call the function to record and send audio
+        // You could trigger this with a button click in your UI instead
+        recordAndSendAudio();
+    </script>
+
+    <script>
+        let detectedMood = "neutral"; // Default mood
+
+        // Load face-api.js models from CDN
+        async function loadFaceModels() {
+            const MODEL_URL = "https://justadudewhohacks.github.io/face-api.js/models";
+            await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+            await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+            console.log("Face models loaded");
+        }
+
+        // Start the camera
+        async function startCamera() {
+            const video = document.getElementById("videoElement");
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+                video.srcObject = stream;
+            } catch (error) {
+                console.error("Camera error:", error);
+            }
+        }
+
+        // Detect facial expressions and update detectedMood
+        async function detectEmotion() {
+            const video = document.getElementById("videoElement");
+            if (video.readyState >= 2) {
+                const detection = await faceapi
+                    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+                    .withFaceExpressions();
+                if (detection && detection.expressions) {
+                    const expressions = detection.expressions;
+                    let maxEmotion = "neutral";
+                    let maxProb = 0;
+                    for (const [emotion, probability] of Object.entries(expressions)) {
+                        if (probability > maxProb) {
+                            maxProb = probability;
+                            maxEmotion = emotion;
+                        }
+                    }
+                    detectedMood = maxEmotion;
+                    console.log("Detected mood:", detectedMood);
+                }
+            }
+        }
+
+        // Function to send a chat message (including mood) to the backend
+        async function sendChat(message) {
+            const payload = { message: message, mood: detectedMood };
+            const responseDiv = document.getElementById("response");
+
+            try {
+                const res = await fetch("http://127.0.0.1:8000/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                responseDiv.innerHTML += `<p><strong>Blissy:</strong> ${data.response}</p>`;
+            } catch (error) {
+                console.error("Error sending chat:", error);
+            }
+        }
+
+        // When the page loads, load models, start the camera, detect mood, and send an initial greeting
+        window.addEventListener("DOMContentLoaded", async () => {
+            await loadFaceModels();
+            await startCamera();
+
+            // Wait a few seconds for the camera to initialize
+            setTimeout(async () => {
+                await detectEmotion();
+                console.log("Initial detected mood:", detectedMood);
+                // Send an initial greeting to the backend using the detected mood
+                sendChat("Hello, how are you?");
+            }, 3000);
+        });
+
+        // Send chat message on button click
+        document.getElementById("sendButton").addEventListener("click", () => {
+            const message = document.getElementById("messageInput").value;
+            if (message.trim() !== "") {
+                sendChat(message);
+                document.getElementById("messageInput").value = "";
+            }
+        });
+    </script>
+
+    <script>
+        // Function to trigger emoji rain animation for 3 seconds
+        function triggerEmojiRain(emojiChar) {
+            let container = document.getElementById("emoji-rain-container");
+            if (!container) {
+                container = document.createElement("div");
+                container.id = "emoji-rain-container";
+                container.style.position = "fixed";
+                container.style.top = "0";
+                container.style.left = "0";
+                container.style.width = "100%";
+                container.style.height = "100%";
+                container.style.pointerEvents = "none";
+                container.style.overflow = "hidden";
+                document.body.appendChild(container);
+            }
+            const numberOfEmojis = 20; // Adjust number as needed
+            for (let i = 0; i < numberOfEmojis; i++) {
+                const emojiElem = document.createElement("div");
+                emojiElem.innerText = emojiChar;
+                emojiElem.style.position = "absolute";
+                emojiElem.style.left = Math.random() * 100 + "%";
+                emojiElem.style.top = "-50px";
+                emojiElem.style.fontSize = "2rem";
+                emojiElem.style.opacity = Math.random().toString();
+                emojiElem.style.transition = "top 3s linear, opacity 3s linear";
+                container.appendChild(emojiElem);
+                // Start animation
+                setTimeout(() => {
+                    emojiElem.style.top = "110%";
+                    emojiElem.style.opacity = "0";
+                }, 100);
+                // Remove element after 3 seconds
+                setTimeout(() => {
+                    container.removeChild(emojiElem);
+                }, 3000);
+            }
+            // Optionally remove container if empty after 3.5 seconds
+            setTimeout(() => {
+                if (container.childElementCount === 0) {
+                    container.remove();
+                }
+            }, 3500);
+        }
+
+        // Listen for the key combination Ctrl+Shift+H
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'h') {
+                console.log("Ctrl+Shift+H pressed. Triggering heart emoji rain.");
+                triggerEmojiRain("❤️"); // Use heart emoji for the rain effect
+            }
+        });
+
+
+        // Copy button 
+
+        function addMessage(text, role, isEditable = true) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${role}`;
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.style.position = 'relative'; // ensure positioning for the copy button
+
+    // For assistant messages, add the copy button
+    if (role === 'assistant') {
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-btn';
+        copyButton.title = 'Copy message';
+        // Using an SVG icon for copy (from Feather icons)
+        copyButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                 stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+        `;
+        copyButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent triggering other click events on the bubble
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    console.log('Copied text:', text);
+                })
+                .catch(err => {
+                    console.error('Failed to copy text:', err);
+                });
+        });
+        contentDiv.appendChild(copyButton);
+    }
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.innerHTML = role === 'user' 
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>';
+    
+    const textDiv = document.createElement('div');
+    textDiv.className = 'text';
+    // Convert URLs to clickable links
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const processedText = text.replace(urlRegex, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+    textDiv.innerHTML = processedText;
+
+    // For user messages, add an edit button if needed
+    if (role === 'user' && isEditable) {
+        const editButton = document.createElement('button');
+        editButton.className = 'edit-btn';
+        editButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>';
+        editButton.addEventListener('click', () => {
+            messageInput.value = text;
+            messageInput.focus();
+            messageInput.dispatchEvent(new Event('input'));
+            messageDiv.remove();
+        });
+        contentDiv.appendChild(editButton);
+    }
+    
+    contentDiv.appendChild(avatar);
+    contentDiv.appendChild(textDiv);
+    messageDiv.appendChild(contentDiv);
+    chatContainer.appendChild(messageDiv);
+    
+    chatContainer.scrollTo({
+        top: chatContainer.scrollHeight,
+        behavior: 'smooth'
+    });
+
+    // Optionally, speak out the assistant message if required
+    if (role === 'assistant') {
+        speakResponse(text);
+    }
+}
+
+
+function addMessage(text, role, isEditable = true) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${role}`;
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.style.position = 'relative'; // for copy button positioning
+
+    // For assistant messages, add a copy button (existing functionality)
+    if (role === 'assistant') {
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-btn';
+        copyButton.title = 'Copy message';
+        copyButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
+                 stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+        `;
+        copyButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(text)
+                .then(() => { console.log('Copied text:', text); })
+                .catch(err => { console.error('Failed to copy text:', err); });
+        });
+        contentDiv.appendChild(copyButton);
+    }
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.innerHTML = role === 'user'
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>';
+    
+    const textDiv = document.createElement('div');
+    textDiv.className = 'text';
+    
+    // Check if the assistant response is a code snippet (using markdown triple backticks)
+    if (role === 'assistant' && text.trim().startsWith("```")) {
+        // Extract code content and optional language specifier
+        const codeMatch = text.trim().match(/^```(\w+)?\n([\s\S]*?)\n```$/);
+        if (codeMatch) {
+            const language = codeMatch[1] || '';
+            const codeContent = codeMatch[2];
+            const pre = document.createElement('pre');
+            const codeElem = document.createElement('code');
+            codeElem.className = `code-block language-${language}`;
+            codeElem.textContent = codeContent;
+            pre.appendChild(codeElem);
+            textDiv.appendChild(pre);
+        } else {
+            // Fallback: render as plain text if pattern not matched
+            textDiv.innerHTML = text;
+        }
+    } else {
+        // Process normal text with URL conversion
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const processedText = text.replace(urlRegex, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+        textDiv.innerHTML = processedText;
+    }
+
+    // For user messages, add an edit button if needed
+    if (role === 'user' && isEditable) {
+        const editButton = document.createElement('button');
+        editButton.className = 'edit-btn';
+        editButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>';
+        editButton.addEventListener('click', () => {
+            messageInput.value = text;
+            messageInput.focus();
+            messageInput.dispatchEvent(new Event('input'));
+            messageDiv.remove();
+        });
+        contentDiv.appendChild(editButton);
+    }
+    
+    contentDiv.appendChild(avatar);
+    contentDiv.appendChild(textDiv);
+    messageDiv.appendChild(contentDiv);
+    chatContainer.appendChild(messageDiv);
+    
+    chatContainer.scrollTo({
+        top: chatContainer.scrollHeight,
+        behavior: 'smooth'
+    });
+
+    if (role === 'assistant') {
+        speakResponse(text);
+    }
+}
+
+
+    </script>
+
+<script>
+    function addMessage(text, role, isEditable = true) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.style.position = 'relative'; // for copy button positioning
+
+        // For assistant messages, add a copy button (existing functionality)
+        if (role === 'assistant') {
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-btn';
+            copyButton.title = 'Copy message';
+            copyButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
+                     stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            `;
+            copyButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(text)
+                    .then(() => { console.log('Copied text:', text); })
+                    .catch(err => { console.error('Failed to copy text:', err); });
+            });
+            contentDiv.appendChild(copyButton);
+        }
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerHTML = role === 'user'
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>';
+    
+        const textDiv = document.createElement('div');
+        textDiv.className = 'text';
+    
+        // Check if the assistant response is a code snippet (using markdown triple backticks)
+        if (role === 'assistant' && text.trim().startsWith("```")) {
+            // Extract code content and optional language specifier
+            const codeMatch = text.trim().match(/^```(\w+)?\n([\s\S]*?)\n```$/);
+            if (codeMatch) {
+                const language = codeMatch[1] || '';
+                const codeContent = codeMatch[2];
+                const pre = document.createElement('pre');
+                const codeElem = document.createElement('code');
+                codeElem.className = `code-block language-${language}`;
+                codeElem.textContent = codeContent;
+                pre.appendChild(codeElem);
+                textDiv.appendChild(pre);
+                // Highlight the code using Prism.js
+                Prism.highlightElement(codeElem);
+            } else {
+                // Fallback: render as plain text if pattern not matched
+                textDiv.innerHTML = text;
+            }
+        } else {
+            // Process normal text with URL conversion
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const processedText = text.replace(urlRegex, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+            textDiv.innerHTML = processedText;
+        }
+
+        // For user messages, add an edit button if needed
+        if (role === 'user' && isEditable) {
+            const editButton = document.createElement('button');
+            editButton.className = 'edit-btn';
+            editButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>';
+            editButton.addEventListener('click', () => {
+                messageInput.value = text;
+                messageInput.focus();
+                messageInput.dispatchEvent(new Event('input'));
+                messageDiv.remove();
+            });
+            contentDiv.appendChild(editButton);
+        }
+        
+        contentDiv.appendChild(avatar);
+        contentDiv.appendChild(textDiv);
+        messageDiv.appendChild(contentDiv);
+        chatContainer.appendChild(messageDiv);
+        
+        chatContainer.scrollTo({
+            top: chatContainer.scrollHeight,
+            behavior: 'smooth'
+        });
+
+        if (role === 'assistant') {
+            speakResponse(text);
+        }
+    }
+</script>
+
+<script>
+    function addMessage(text, role, isEditable = true) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.style.position = 'relative'; // for copy button positioning
+
+        // For assistant messages, add a copy button (existing functionality)
+        if (role === 'assistant') {
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-btn';
+            copyButton.title = 'Copy message';
+            copyButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
+                     stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            `;
+            copyButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(text)
+                    .then(() => { console.log('Copied text:', text); })
+                    .catch(err => { console.error('Failed to copy text:', err); });
+            });
+            contentDiv.appendChild(copyButton);
+        }
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerHTML = role === 'user'
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>';
+        
+        const textDiv = document.createElement('div');
+        textDiv.className = 'text';
+        
+        // Process normal text with URL conversion and formatting
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        let processedText = text.replace(urlRegex, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+        
+        // Make text between ** bold
+        processedText = processedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Make text within ``` italic
+        processedText = processedText.replace(/```([\s\S]*?)```/g, '<em>$1</em>');
+        
+        // Handle multi-line code blocks
+        const codeBlockRegex = /```(\w+)?\n([\s\S]*?)\n```/g;
+        processedText = processedText.replace(codeBlockRegex, (match, language, codeContent) => {
+            const pre = document.createElement('pre');
+            const codeElem = document.createElement('code');
+            codeElem.className = `code-block language-${language || ''}`;
+            codeElem.textContent = codeContent;
+            // Highlight the code using Prism.js
+            Prism.highlightElement(codeElem);
+            pre.appendChild(codeElem);
+            return pre.outerHTML;
+        });
+        
+        textDiv.innerHTML = processedText;
+
+        // For user messages, add an edit button if needed
+        if (role === 'user' && isEditable) {
+            const editButton = document.createElement('button');
+            editButton.className = 'edit-btn';
+            editButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>';
+            editButton.addEventListener('click', () => {
+                messageInput.value = text;
+                messageInput.focus();
+                messageInput.dispatchEvent(new Event('input'));
+                messageDiv.remove();
+            });
+            contentDiv.appendChild(editButton);
+        }
+        
+        contentDiv.appendChild(avatar);
+        contentDiv.appendChild(textDiv);
+        messageDiv.appendChild(contentDiv);
+        chatContainer.appendChild(messageDiv);
+        
+        chatContainer.scrollTo({
+            top: chatContainer.scrollHeight,
+            behavior: 'smooth'
+        });
+
+        if (role === 'assistant') {
+            speakResponse(text);
+        }
+    }
+</script>
+
+<script>
+    function addMessage(text, role, isEditable = true) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.style.position = 'relative'; // for copy button positioning
+
+        // For assistant messages, add a copy button (existing functionality)
+        if (role === 'assistant') {
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-btn';
+            copyButton.title = 'Copy message';
+            copyButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" 
+                     stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            `;
+            copyButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(text)
+                    .then(() => { console.log('Copied text:', text); })
+                    .catch(err => { console.error('Failed to copy text:', err); });
+            });
+            contentDiv.appendChild(copyButton);
+        }
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerHTML = role === 'user'
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>';
+        
+        const textDiv = document.createElement('div');
+        textDiv.className = 'text';
+        
+        // Process normal text with URL conversion and formatting
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        let processedText = text.replace(urlRegex, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+        
+        // Make text between ** bold
+        processedText = processedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Make text within ``` italic and brighter blue
+        processedText = processedText.replace(/```([\s\S]*?)```/g, '<em class="clickable-italic" style="color:#c600ff ;">$1</em>');
+        textDiv.innerHTML = processedText;
+        
+        // Handle multi-line code blocks and comments
+        const codeBlockRegex = /```(\w+)?\n([\s\S]*?)\n```/g;
+        processedText = processedText.replace(codeBlockRegex, (match, language, codeContent) => {
+            const pre = document.createElement('pre');
+            const codeElem = document.createElement('code');
+            codeElem.className = `code-block language-${language || ''}`;
+            codeElem.textContent = codeContent;
+            // Highlight the code using Prism.js
+            Prism.highlightElement(codeElem);
+            pre.appendChild(codeElem);
+            return pre.outerHTML;
+        });
+
+        // Make text after // green and clickable
+        processedText = processedText.replace(/(\/\/.*?$)/gm, '<span class="clickable-text" style="color: #0af80a;">$1</span>');
+        
+        textDiv.innerHTML = processedText;
+
+        // Add event listener to clickable text
+        textDiv.querySelectorAll('.clickable-text').forEach(element => {
+            element.addEventListener('click', () => {
+                navigator.clipboard.writeText(element.textContent)
+                    .then(() => { console.log('Copied text:', element.textContent); })
+                    .catch(err => { console.error('Failed to copy text:', err); });
+            });
+        });
+
+        // Add event listener to clickable italic text
+        textDiv.querySelectorAll('.clickable-italic').forEach(element => {
+            element.addEventListener('click', () => {
+                let textToCopy = '';
+                let currentNode = element;
+                while (currentNode && currentNode.classList.contains('clickable-italic')) {
+                    textToCopy = currentNode.textContent + textToCopy;
+                    currentNode = currentNode.previousSibling;
+                }
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => { console.log('Copied text:', textToCopy); })
+                    .catch(err => { console.error('Failed to copy text:', err); });
+            });
+        });
+
+        // For user messages, add an edit button if needed
+        if (role === 'user' && isEditable) {
+            const editButton = document.createElement('button');
+            editButton.className = 'edit-btn';
+            editButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>';
+            editButton.addEventListener('click', () => {
+                messageInput.value = text;
+                messageInput.focus();
+                messageInput.dispatchEvent(new Event('input'));
+                messageDiv.remove();
+            });
+            contentDiv.appendChild(editButton);
+        }
+        
+        contentDiv.appendChild(avatar);
+        contentDiv.appendChild(textDiv);
+        messageDiv.appendChild(contentDiv);
+        chatContainer.appendChild(messageDiv);
+        
+        chatContainer.scrollTo({
+            top: chatContainer.scrollHeight,
+            behavior: 'smooth'
+        });
+
+        if (role === 'assistant') {
+            speakResponse(text);
+        }
+    }
+</script>
+<script>
+    // Function to handle image upload and analysis
+    function handleGoogleLensImageUpload() {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+
+        fileInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async function (e) {
+                    const imageUrl = e.target.result;
+
+                    // Add the image preview to the chat from the user's side
+                    addImageMessage(imageUrl, 'user');
+
+                    // Send the image to the backend for analysis
+                    const response = await analyzeImageWithGoogleVision(imageUrl);
+                    if (response) {
+                        addMessage(response, 'assistant');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Trigger the file input dialog
+        fileInput.click();
+    }
+
+    // Function to send the image to the backend for Google Vision AI analysis
+    async function analyzeImageWithGoogleVision(imageUrl) {
+        try {
+            const payload = {
+                image: imageUrl // Base64 image string
+            };
+
+            const response = await fetch("http://127.0.0.1:8000/analyze_image_google", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            console.log("Backend response:", data);
+
+            if (data.response) {
+                return data.response; // Return the AI's response
+            } else {
+                return "Sorry, I couldn't analyze the image.";
+            }
+        } catch (error) {
+            console.error("Error analyzing image:", error);
+            return "An error occurred while analyzing the image.";
+        }
+    }
+
+    // Function to add an image message to the chat
+    function addImageMessage(imageUrl, role) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerHTML = role === 'user'
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>';
+
+        const imageDiv = document.createElement('div');
+        imageDiv.className = 'image-message';
+        imageDiv.innerHTML = `<img src="${imageUrl}" alt="Uploaded Image" style="max-width: 100%; border-radius: 8px;">`;
+
+        contentDiv.appendChild(avatar);
+        contentDiv.appendChild(imageDiv);
+        messageDiv.appendChild(contentDiv);
+        chatContainer.appendChild(messageDiv);
+
+        chatContainer.scrollTo({
+            top: chatContainer.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+
+    // Add event listener to the plus button
+    document.getElementById('add-image-btn').addEventListener('click', () => {
+        handleGoogleLensImageUpload();
+    });
+</script>
+<script>
+    // WebSocket connection to receive emotion data
+    const socket = new WebSocket("ws://localhost:8001");
+
+    // Emotion-to-color mapping
+    const emotionColors = {
+        happy: "green",
+        sad: "blue",
+        angry: "red",
+        neutral: "yellow"
+    };
+
+    // Function to create and display a dot on the clipboard
+    function displayEmotionDot(color) {
+        const clipboard = document.getElementById("chat-container"); // Replace with the correct container ID
+        const dot = document.createElement("div");
+        dot.style.width = "10px";
+        dot.style.height = "10px";
+        dot.style.backgroundColor = color;
+        dot.style.borderRadius = "50%";
+        dot.style.position = "absolute";
+        dot.style.top = `${Math.random() * 90}%`; // Random position within the container
+        dot.style.left = `${Math.random() * 90}%`; // Random position within the container
+        clipboard.appendChild(dot);
+
+        // Remove the dot after 3 seconds
+        setTimeout(() => {
+            clipboard.removeChild(dot);
+        }, 3000);
+    }
+
+    // Handle incoming WebSocket messages
+    socket.onmessage = (event) => {
+        const emotion = event.data; // Emotion received from the backend
+        const color = emotionColors[emotion];
+        if (color) {
+            displayEmotionDot(color);
+        }
+    };
+
+    // Handle WebSocket connection errors
+    socket.onerror = (error) => {
+        console.error("WebSocket error:", error);
+    };
+
+    // Handle WebSocket connection closure
+    socket.onclose = () => {
+        console.log("WebSocket connection closed");
+    };
+</script>
+<script>
+// Function to speak out the assistant's response with a different voice
+function speakResponse(text) {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+
+        // Prioritize a more feminine/girly voice
+        const preferredVoices = voices.filter(voice => 
+            voice.name.includes('Google 한국어 Female') ||
+            voice.name.includes('Google UK English Female') || 
+            voice.name.includes('Google US English Female') || 
+            voice.name.includes('Microsoft Zira') || 
+            voice.name.includes('Samantha') // macOS/iOS has a voice named "Samantha"
+        );
+
+        // Choose the first available preferred voice
+        utterance.voice = preferredVoices.length > 0 ? preferredVoices[0] : voices[0];
+
+        utterance.lang = 'en-US'; // Set the language
+        utterance.rate = 1.1; // Slightly faster for a more lively effect
+        utterance.pitch = 1.4; // Higher pitch for a girly tone
+        utterance.volume = 1; // Max volume
+
+        // Speak the text
+        window.speechSynthesis.speak(utterance);
+    } else {
+        console.error('Speech synthesis is not supported in this browser.');
+    }
+}
+
+</script>
+
+</body>
+</html>

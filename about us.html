@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About the Developers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&family=Noto+Sans+Bamum&family=Noto+Emoji&display=swap" rel="stylesheet">
+    <style>
+:root {
+  --space: 1rem;
+  --bg: #09090b;
+  --fg: #e3e3e3;
+  --surface-1: #101012;
+  --surface-2: #27272a;
+  --surface-3: #52525b;
+  --ease-out: cubic-bezier(0.5, 1, 0.89, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+height,
+body {
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+body {
+  display: grid;
+  color: var(--fg);
+  background: var(--bg);
+  padding: var(--space);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('https://imgs.search.brave.com/dNWW0AItCuX_C0uFBfZ_ven490rkik2zwQ-u7-M64bw/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93YWxs/cGFwZXJzLmNvbS9p/bWFnZXMvaGQvY29k/ZS1wcm9ncmFtbWlu/Zy10ZXh0LWxpbmVz/LXN5bWJvbHMtbXVs/dGktY29sb3JlZC04/N29udXFubXJyMmJs/b2kzLmpwZw');
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px) brightness(50%);
+  z-index: -1;
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+    position: relative;
+    z-index: 2;
+    margin: auto;
+}
+
+.card {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-areas: "card";
+  place-items: center;
+  aspect-ratio: 3/4;
+  border: 1px solid var(--surface-2);
+  isolation: isolate;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-user-select: none;
+  user-select: none;
+  width: 240px;
+  height: 320px;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0 auto;
+}
+
+.card.shrink {
+  transform: scale(0.8);
+  filter: brightness(0.2) contrast(0.8);
+  pointer-events: none;
+}
+
+.card.shrink-left {
+  transform: scale(0.8) translateX(calc(-100% - 10px));
+  filter: brightness(0.2) contrast(0.8);
+}
+
+.card.shrink-right {
+  transform: scale(0.8) translateX(calc(100% + 10px));
+  filter: brightness(0.2) contrast(0.8);
+}
+
+.card.active {
+  transform: scale(1.2);
+  z-index: 2;
+  filter: brightness(1);
+}
+
+.dev-info {
+    position: absolute;
+    top: 60%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.95);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.1rem;
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    padding: 2rem;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background: none;
+    border: none;
+    box-shadow: none;
+    pointer-events: none;
+    left: 60%; /* Adjust as needed for best appearance */
+}
+
+.dev-info.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.dev-info p {
+    margin: 1.5rem 0;
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition-delay: calc(var(--index) * 0.15s);
+    line-height: 1.6;
+    position: relative;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.dev-info.active p {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.dev-info p strong {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.4rem;
+}
+
+.dev-info p span {
+    display: block;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 1);
+    font-weight: 600;
+    padding-left: 0.5rem;
+}
+
+.dev-info.active p {
+  opacity: 1;
+  transform: translateX(0);
+  margin-left: -400px;
+  margin-top: 10px;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at bottom left,
+    transparent 55%,
+    var(--surface-1)
+  );
+  pointer-events: none;
+  box-shadow: var(--bg) -0.5cqi 0.5cqi 2.5cqi inset;
+  transition: opacity 900ms var(--ease-out);
+  z-index: 1;
+  opacity: 0;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, var(--bg), transparent 65%);
+  opacity: 0;
+  transition: opacity 800ms var(--ease-out);
+  margin-left: 10px;
+}
+
+> * {
+  grid-area: card;
+}
+
+svg {
+  position: relative;
+  z-index: 1;
+  width: 30%;
+  height: auto;
+  color: var(--surface-3);
+  transition: 300ms var(--ease-out);
+  transition-property: color, scale;
+}
+
+button {
+  opacity: 0;
+}
+
+&:focus-within {
+  outline: 5px auto Highlight;
+  outline: 5px auto -webkit-focus-ring-color;
+}
+
+&:where(:hover, :focus-within) {
+  border-color: var(--active-color, var(--fg));
+  transition: border-color 800ms var(--ease-in-out);
+}
+
+&:where(:hover, :focus-within) svg {
+  color: var(--active-color, var(--fg));
+  scale: 1.1;
+  transition: 300ms var(--ease-in-out);
+}
+
+&:where(:hover, :focus-within)::before {
+  opacity: 0;
+}
+
+&:where(:hover, :focus-within)::after {
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.page-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 1rem 0;
+    padding: 0.5rem;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.letter {
+    display: inline-block;
+    background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 50%, #ffffff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 
+        0 0 1px rgba(255, 255, 255, 0.5),
+        0 0 15px rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
+    cursor: default;
+}
+
+.letter:hover {
+    transform: translateY(-8px) scale(1.1);
+    text-shadow: 
+        0 0 2px rgba(255, 255, 255, 0.8),
+        0 0 20px rgba(255, 255, 255, 0.4),
+        0 8px 8px rgba(0, 0, 0, 0.3);
+}
+
+.word {
+    display: inline-flex;
+    margin: 0 0.5rem;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #e0f2fe 0%, #ff69b4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+}
+
+/* Matrix animation styles */
+#matrix-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+#toolbar {
+    position: absolute;
+    top: 50px;
+    left: 10px;
+    color: #0f0;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    transition: transform 0.3s ease-in-out;
+    z-index: 10;
+}
+
+#toolbar.hidden {
+    transform: translateX(-100%);
+}
+
+#toggleToolbar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #0f0;
+    color: #000;
+    border: none;
+    padding: 5px 10px;
+    margin: 5px;
+    cursor: pointer;
+    z-index: 10;
+    transition: background-color 0.3s ease;
+}
+
+.chat-button {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    background: linear-gradient(135deg, var(--primary, #ffffff00) 0%, var(--secondary, #ffffff00) 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.chat-button:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
+}
+
+.chat-button:active {
+    transform: translateY(0) scale(0.95);
+}
+
+.chat-button svg {
+    width: 30px;
+    height: 30px;
+    stroke-width: 2;
+    transition: transform 0.3s ease;
+}
+
+.chat-button:hover svg {
+    transform: scale(1.1);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(124, 58, 237, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+    }
+}
+
+.chat-button {
+    animation: pulse 2s infinite;
+}
+    </style>
+</head>
+<body>
+    <!-- Matrix Canvas Background -->
+    <canvas id="matrix-canvas"></canvas>
+    <button id="toggleToolbar" onclick="toggleToolbar()">☰</button>
+    <div id="toolbar" class="hidden">
+        <button onclick="togglePause()">Pause/Resume</button>
+        <button onclick="randomizeColor()">Random Color</button>
+        <button onclick="toggleCycleColor()">Cycle Color</button>
+        <input type="color" id="colorPicker" onchange="updateColor(this.value)">
+        <label>Delay: <span id="speedValue" class="slider-value">50</span>
+            <input type="range" id="speedSlider" min="10" max="200" value="50" oninput="updateSpeed(this.value)">
+        </label>
+        <label>Font Size: <span id="fontSizeValue" class="slider-value">16</span>
+            <input type="range" id="fontSizeSlider" min="8" max="32" value="16" oninput="updateFontSize(this.value)">
+        </label>
+        <label>Fade Speed: <span id="fadeSpeedValue" class="slider-value">0.05</span>
+            <input type="range" id="fadeSpeedSlider" min="0.01" max="0.2" step="0.01" value="0.05" oninput="updateFadeSpeed(this.value)">
+        </label>
+        <label>Horizontal Movement: <span id="horizontalValue" class="slider-value">3</span>
+            <input type="range" id="horizontalSlider" min="-10" max="10" value="3" step="0.1" oninput="updateHorizontalMovement(this.value)">
+        </label>
+        <label>Character Set:
+            <select id="charSetSelect" onchange="updateCharacterSet(this.value)">
+                <option value="bamum" selected>Bamum</option>
+                <option value="ascii">ASCII</option>
+                <option value="binary">Binary</option>
+                <option value="korean">Korean (Hangul)</option>
+                <option value="matrix">Matrix (Katakana + Latin + Nums)</option>
+            </select>
+        </label>
+        <button onclick="toggleFullscreen()">Toggle Fullscreen</button>
+        <button id="resetButton" onclick="resetToDefaults()">Reset to Defaults</button>
+    </div>
+
+    <!-- Original Content -->
+    <a href="animate.html" class="chat-button" title="Open Chat">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <path d="M8 9h8"/>
+            <path d="M8 13h6"/>
+        </svg>
+    </a>
+    <h1 class="page-title">
+        <div class="word">
+            <span class="letter">A</span>
+            <span class="letter">b</span>
+            <span class="letter">o</span>
+            <span class="letter">u</span>
+            <span class="letter">t</span>
+        </div>
+        <div class="word">
+            <span class="letter">t</span>
+            <span class="letter">h</span>
+            <span class="letter">e</span>
+        </div>
+        <div class="word">
+            <span class="letter">D</span>
+            <span class="letter">e</span>
+            <span class="letter">v</span>
+            <span class="letter">e</span>
+            <span class="letter">l</span>
+            <span class="letter">o</span>
+            <span class="letter">p</span>
+            <span class="letter">e</span>
+            <span class="letter">r</span>
+            <span class="letter">s</span>
+        </div>
+    </h1>
+    <main>
+        <div class="card" style="--active-color: #e0f2fe; background-image: url('./dp.jpg')" onclick="toggleCard(this, 'Tarush Nigam', '231060072', 'Electronics Engineering')">
+          <pixel-canvas data-gap="5" data-speed="25" data-colors="#e0f2fe, #7dd3fc, #0ea5e9"></pixel-canvas>
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentcolor" viewBox="0 0 256 256">
+            <path d="M67.84,92.61,25.37,128l42.47,35.39a6,6,0,1,1-7.68,9.22l-48-40a6,6,0,0,1,0-9.22l48-40a6,6,0,0,1,7.68,9.22Zm176,30.78-48-40a6,6,0,1,0-7.68,9.22L230.63,128l-42.47,35.39a6,6,0,1,0,7.68,9.22l48-40a6,6,0,0,0,0-9.22Zm-81.79-89A6,6,0,0,0,154.36,38l-64,176A6,6,0,0,0,94,221.64a6.15,6.15,0,0,0,2,.36,6,6,0,0,0,5.64-3.95l64-176A6,6,0,0,0,162.05,34.36Z"></path>
+          </svg>
+          <button>Code</button>
+        </div>
+
+        <div class="dev-info">
+            <p>Name: </p>
+            <p>Roll Number: </p>
+            <p>Branch: </p>
+        </div>
+    </main>
+
+    <!-- Matrix Animation Script -->
+    <script>
+        const canvas = document.getElementById("matrix-canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+
+        let katakana = "अ आ इ ई उ ऊ ए ऐ ओ औ क ख ग घ च छ ज झ ट ठ ड ढ त थ द ध न प फ ब भ म य र ल व श ष स ह";
+        let latin = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let nums = "0123456789";
+        let korean = "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ";
+        let bamum = "ꚠꚡꚢꚣꚤꚥꚦꚧꚨꚩꚪꚫꚬꚭꚮꚯꚰꚱꚲꚳꚴꚵꚶꚷꚸꚹꚺꚻꚼꚽꚾꚿꛀꛁꛂꛃꛄꛅꛆꛇꛈꛉꛊꛋꛌꛍꛎꛏꛐꛑꛒꛓꛔꛕꛖꛗꛘꛙꛚꛛꛜꛝꛞꛟꛠꛡꛢꛣꛤꛥꛦꛧꛨꛩꛪꛫꛬꛭꛮꛯ";
+        let emoji = "😀😃😄😁😆😅😂🤣😊😇🙂🙃😉😌😍🥰😘😗😙😚😋😛😝😜🤪🤨🧐🤓😎🤩🥳😏😒😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😤😠😡🤬🤯😳🥵🥶😱😨😰😥😓🤗🤔🤭🤫🤥😶😐😑😬🙄😯😦😧😮😲🥱😴🤤😪😵🤐🥴🤢🤮🤧😷🤒🤕🤑🤠😈👿👹👺🤡💩👻💀☠️👽👾🤖🎃😺😸😹😻😼😽🙀😿😾🥰💀✌️🌴🐢🐐🍄⚽🍻👑📸😬👀🚨🏡🐦‍🔥🍋‍🟩🍄‍🟫🙂‍↕️🕊️🏆😻🌟🧿🍀🎨🍜😀😁😂🤣😃😄😅😆😉😊😋😎😍😘🥰😗😙😚☺🙂🤗🤩🤔🤨😐😑😶🙄😏😣😥😮🤐😯😪😫🥱😴😌😛😜😝🤤😒😓😔😕🙃🤑😲☹🙁😖😞😟😤😢😭😦😧😨😩🤯😬🥴😵🤪😳🥶🥵😱😰😠😡🤬😷🤒🤕🤢🤮🤫🤥🤡🤠🥺🥳😇🤧";
+
+        let alphabet = bamum; // Set Bamum as default
+
+        let fontSize = 16;
+        let columns = canvas.width / fontSize;
+
+        let rainDrops = [];
+
+        for (let x = 0; x < columns; x++) {
+            rainDrops[x] = 1;
+        }
+
+        let color = "#0f0";
+        let speed = 50;
+        let paused = false;
+        let fadeSpeed = 0.05;
+        let horizontalMovement = 3;
+        let cycleColorActive = true; // Set cycle color as default
+        let hue = 0;
+
+        function draw() {
+            if (paused) return;
+
+            ctx.fillStyle = `rgba(0, 0, 0, ${fadeSpeed})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (cycleColorActive) {
+                hue = (hue + 1) % 360;
+                color = `hsl(${hue}, 100%, 50%)`;
+                updateMenuButtonColor(color);
+                document.getElementById("colorPicker").value = hslToHex(hue, 100, 50);
+            }
+
+            ctx.fillStyle = color;
+
+            let fontFamily = "Noto Sans Bamum"; // Set Bamum font as default
+            ctx.font = fontSize + "px " + fontFamily;
+
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(
+                    text,
+                    i * fontSize + rainDrops[i] * horizontalMovement,
+                    rainDrops[i] * fontSize
+                );
+
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        }
+
+        let interval = setInterval(draw, speed);
+
+        window.addEventListener("resize", () => {
+            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth;
+            columns = canvas.width / fontSize;
+            rainDrops = Array(Math.ceil(columns)).fill(1);
+        });
+
+        function togglePause() {
+            paused = !paused;
+        }
+
+        function randomizeColor() {
+            color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+            document.getElementById("colorPicker").value = color;
+            updateMenuButtonColor(color);
+        }
+
+        function updateColor(newColor) {
+            color = newColor;
+            updateMenuButtonColor(newColor);
+        }
+
+        function updateMenuButtonColor(newColor) {
+            document.getElementById("toggleToolbar").style.backgroundColor = newColor;
+            document.getElementById("toggleToolbar").style.color = getContrastColor(
+                newColor
+            );
+        }
+
+        function getContrastColor(hexcolor) {
+            // Handle HSL colors
+            if (hexcolor.startsWith('hsl')) {
+                return 'black'; // Default for simplicity
+            }
+            
+            // Handle hex colors
+            if (hexcolor.startsWith('#')) {
+                let r = parseInt(hexcolor.substr(1, 2), 16);
+                let g = parseInt(hexcolor.substr(3, 2), 16);
+                let b = parseInt(hexcolor.substr(5, 2), 16);
+                let yiq = (r * 299 + g * 587 + b * 114) / 1000;
+                return yiq >= 128 ? "black" : "white";
+            }
+            
+            return 'black'; // Default
+        }
+
+        function updateSpeed(newSpeed) {
+            clearInterval(interval);
+            speed = newSpeed;
+            interval = setInterval(draw, speed);
+            document.getElementById("speedValue").textContent = newSpeed;
+        }
+
+        function updateFontSize(newSize) {
+            fontSize = parseInt(newSize);
+            columns = canvas.width / fontSize;
+            rainDrops = Array(Math.ceil(columns)).fill(1);
+            document.getElementById("fontSizeValue").textContent = newSize;
+        }
+
+        function updateFadeSpeed(newSpeed) {
+            fadeSpeed = parseFloat(newSpeed);
+            document.getElementById("fadeSpeedValue").textContent = newSpeed;
+        }
+
+        function updateHorizontalMovement(newMovement) {
+            horizontalMovement = parseFloat(newMovement);
+            document.getElementById("horizontalValue").textContent = newMovement;
+        }
+
+        function updateCharacterSet(set) {
+            switch (set) {
+                case "binary":
+                    alphabet = "01";
+                    break;
+                case "matrix":
+                    alphabet = katakana + latin + nums;
+                    break;
+                case "korean":
+                    alphabet = korean;
+                    break;
+                case "bamum":
+                    alphabet = bamum;
+                    break;
+                case "emoji":
+                    alphabet = emoji;
+                    break;
+                default:
+                    alphabet = "";
+                    for (let i = 33; i <= 126; i++) {
+                        alphabet += String.fromCharCode(i);
+                    }
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function toggleToolbar() {
+            document.getElementById("toolbar").classList.toggle("hidden");
+        }
+
+        function toggleCycleColor() {
+            cycleColorActive = !cycleColorActive;
+        }
+
+        function resetToDefaults() {
+            color = "#0f0";
+            speed = 50;
+            fontSize = 16;
+            fadeSpeed = 0.05;
+            horizontalMovement = 0;
+            cycleColorActive = true; // Set cycle color as default
+            alphabet = bamum; // Set Bamum as default
+
+            document.getElementById("colorPicker").value = color;
+            document.getElementById("speedSlider").value = speed;
+            document.getElementById("fontSizeSlider").value = fontSize;
+            document.getElementById("fadeSpeedSlider").value = fadeSpeed;
+            document.getElementById("horizontalSlider").value = horizontalMovement;
+            document.getElementById("charSetSelect").value = "bamum";
+
+            updateColor(color);
+            updateSpeed(speed);
+            updateFontSize(fontSize);
+            updateFadeSpeed(fadeSpeed);
+            updateHorizontalMovement(horizontalMovement);
+
+            columns = canvas.width / fontSize;
+            rainDrops = Array(Math.ceil(columns)).fill(1);
+        }
+
+        function hslToHex(h, s, l) {
+            l /= 100;
+            const a = (s * Math.min(l, 1 - l)) / 100;
+            const f = (n) => {
+                const k = (n + h / 30) % 12;
+                const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                return Math.round(255 * color)
+                    .toString(16)
+                    .padStart(2, "0");
+            };
+            return `#${f(0)}${f(8)}${f(4)}`;
+        }
+
+        // Initialize menu button color and slider values
+        updateMenuButtonColor(color);
+        document.getElementById("speedValue").textContent = speed;
+        document.getElementById("fontSizeValue").textContent = fontSize;
+        document.getElementById("fadeSpeedValue").textContent = fadeSpeed;
+        document.getElementById("horizontalValue").textContent = horizontalMovement;
+
+        // Start with Bamum character set and cycle color active
+        updateCharacterSet("bamum");
+        cycleColorActive = true;
+    </script>
+
+    <!-- Pixel Canvas Script -->
+    <script>
+        class Pixel {
+            constructor(canvas, context, x, y, color, speed, delay) {
+                this.width = canvas.width;
+                this.height = canvas.height;
+                this.ctx = context;
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.speed = this.getRandomValue(0.1, 0.9) * speed;
+                this.size = 0;
+                this.sizeStep = Math.random() * 0.4;
+                this.minSize = 0.5;
+                this.maxSizeInteger = 2;
+                this.maxSize = this.getRandomValue(this.minSize, this.maxSizeInteger);
+                this.delay = delay;
+                this.counter = 0;
+                this.counterStep = Math.random() * 4 + (this.width + this.height) * 0.01;
+                this.isIdle = false;
+                this.isReverse = false;
+                this.isShimmer = false;
+            }
+          
+            getRandomValue(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+          
+            draw() {
+                const centerOffset = this.maxSizeInteger * 0.5 - this.size * 0.5;
+          
+                this.ctx.fillStyle = this.color;
+                this.ctx.fillRect(
+                    this.x + centerOffset,
+                    this.y + centerOffset,
+                    this.size,
+                    this.size
+                );
+            }
+          
+            appear() {
+                this.isIdle = false;
+          
+                if (this.counter <= this.delay) {
+                    this.counter += this.counterStep;
+                    return;
+                }
+          
+                if (this.size >= this.maxSize) {
+                    this.isShimmer = true;
+                }
+          
+                if (this.isShimmer) {
+                    this.shimmer();
+                } else {
+                    this.size += this.sizeStep;
+                }
+          
+                this.draw();
+            }
+          
+            disappear() {
+                this.isShimmer = false;
+                this.counter = 0;
+          
+                if (this.size <= 0) {
+                    this.isIdle = true;
+                    return;
+                } else {
+                    this.size -= 0.1;
+                }
+          
+                this.draw();
+            }
+          
+            shimmer() {
+                if (this.size >= this.maxSize) {
+                    this.isReverse = true;
+                } else if (this.size <= this.minSize) {
+                    this.isReverse = false;
+                }
+          
+                if (this.isReverse) {
+                    this.size -= this.speed;
+                } else {
+                    this.size += this.speed;
+                }
+            }
+        }
+          
+        class PixelCanvas extends HTMLElement {
+            static register(tag = "pixel-canvas") {
+                if ("customElements" in window) {
+                    customElements.define(tag, this);
+                }
+            }
+          
+            static css = `
+                :host {
+                    display: grid;
+                    inline-size: 100%;
+                    block-size: 100%;
+                    overflow: hidden;
+                }
+            `;
+          
+            get colors() {
+                return this.dataset.colors?.split(",") || ["#f8fafc", "#f1f5f9", "#cbd5e1"];
+            }
+          
+            get gap() {
+                const value = this.dataset.gap || 5;
+                const min = 4;
+                const max = 50;
+          
+                if (value <= min) {
+                    return min;
+                } else if (value >= max) {
+                    return max;
+                } else {
+                    return parseInt(value);
+                }
+            }
+          
+            get speed() {
+                const value = this.dataset.speed || 35;
+                const min = 0;
+                const max = 100;
+                const throttle = 0.001;
+          
+                if (value <= min || this.reducedMotion) {
+                    return min;
+                } else if (value >= max) {
+                    return max * throttle;
+                } else {
+                    return parseInt(value) * throttle;
+                }
+            }
+          
+            get noFocus() {
+                return this.hasAttribute("data-no-focus");
+            }
+          
+            connectedCallback() {
+                const canvas = document.createElement("canvas");
+                const sheet = new CSSStyleSheet();
+          
+                this._parent = this.parentNode;
+                this.shadowroot = this.attachShadow({ mode: "open" });
+          
+                sheet.replaceSync(PixelCanvas.css);
+          
+                this.shadowroot.adoptedStyleSheets = [sheet];
+                this.shadowroot.append(canvas);
+                this.canvas = this.shadowroot.querySelector("canvas");
+                this.ctx = this.canvas.getContext("2d");
+                this.timeInterval = 1000 / 60;
+                this.timePrevious = performance.now();
+                this.reducedMotion = window.matchMedia(
+                    "(prefers-reduced-motion: reduce)"
+                ).matches;
+          
+                this.init();
+                this.resizeObserver = new ResizeObserver(() => this.init());
+                this.resizeObserver.observe(this);
+          
+                this._parent.addEventListener("mouseenter", this);
+                this._parent.addEventListener("mouseleave", this);
+          
+                if (!this.noFocus) {
+                    this._parent.addEventListener("focusin", this);
+                    this._parent.addEventListener("focusout", this);
+                }
+            }
+          
+            disconnectedCallback() {
+                this.resizeObserver.disconnect();
+                this._parent.removeEventListener("mouseenter", this);
+                this._parent.removeEventListener("mouseleave", this);
+          
+                if (!this.noFocus) {
+                    this._parent.removeEventListener("focusin", this);
+                    this._parent.removeEventListener("focusout", this);
+                }
+          
+                delete this._parent;
+            }
+          
+            handleEvent(event) {
+                this[`on${event.type}`](event);
+            }
+          
+            onmouseenter() {
+                this.handleAnimation("appear");
+            }
+          
+            onmouseleave() {
+                this.handleAnimation("disappear");
+            }
+          
+            onfocusin(e) {
+                if (e.currentTarget.contains(e.relatedTarget)) return;
+                this.handleAnimation("appear");
+            }
+          
+            onfocusout(e) {
+                if (e.currentTarget.contains(e.relatedTarget)) return;
+                this.handleAnimation("disappear");
+            }
+          
+            handleAnimation(name) {
+                cancelAnimationFrame(this.animation);
+                this.animation = this.animate(name);
+            }
+          
+            init() {
+                const rect = this.getBoundingClientRect();
+                const width = Math.floor(rect.width);
+                const height = Math.floor(rect.height);
+          
+                this.pixels = [];
+                this.canvas.width = width;
+                this.canvas.height = height;
+                this.canvas.style.width = `${width}px`;
+                this.canvas.style.height = `${height}px`;
+                this.createPixels();
+            }
+          
+            getDistanceToCanvasCenter(x, y) {
+                const dx = x - this.canvas.width / 2;
+                const dy = y - this.canvas.height / 2;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+          
+                return distance;
+            }
+          
+            createPixels() {
+                for (let x = 0; x < this.canvas.width; x += this.gap) {
+                    for (let y = 0; y < this.canvas.height; y += this.gap) {
+                        const color = this.colors[
+                            Math.floor(Math.random() * this.colors.length)
+                        ];
+                        const delay = this.reducedMotion
+                            ? 0
+                            : this.getDistanceToCanvasCenter(x, y);
+          
+                        this.pixels.push(
+                            new Pixel(this.canvas, this.ctx, x, y, color, this.speed, delay)
+                        );
+                    }
+                }
+            }
+          
+            animate(fnName) {
+                this.animation = requestAnimationFrame(() => this.animate(fnName));
+          
+                const timeNow = performance.now();
+                const timePassed = timeNow - this.timePrevious;
+          
+                if (timePassed < this.timeInterval) return;
+          
+                this.timePrevious = timeNow - (timePassed % this.timeInterval);
+          
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          
+                for (let i = 0; i < this.pixels.length; i++) {
+                    this.pixels[i][fnName]();
+                }
+          
+                if (this.pixels.every((pixel) => pixel.isIdle)) {
+                    cancelAnimationFrame(this.animation);
+                }
+            }
+        }
+          
+        PixelCanvas.register();
+
+        function toggleCard(clickedCard, name, rollNo, branch) {
+            const cards = document.querySelectorAll('.card');
+            const devInfo = document.querySelector('.dev-info');
+            const isFirstCard = clickedCard === cards[0];
+            
+            // If clicking an already active card, reset everything
+            if (clickedCard.classList.contains('active')) {
+                resetCards();
+                return;
+            }
+
+            // Position the dev-info next to the clicked card
+            const cardRect = clickedCard.getBoundingClientRect();
+            devInfo.style.left = `${cardRect.right + 10}px`; // 10px from the right edge of card
+
+            // Otherwise, activate clicked card and shrink others
+            cards.forEach(card => {
+                if (card === clickedCard) {
+                    card.classList.add('active');
+                    card.classList.remove('shrink', 'shrink-left', 'shrink-right');
+                } else {
+                    card.classList.add('shrink');
+                    // Add directional shrink based on which card was clicked
+                    if (isFirstCard) {
+                        card.classList.add('shrink-right');
+                    } else {
+                        card.classList.add('shrink-left');
+                    }
+                    card.classList.remove('active');
+                }
+            });
+
+            // Show and update dev info
+            devInfo.classList.add('active');
+            updateDevInfo(name, rollNo, branch);
+        }
+
+        function resetCards() {
+            const cards = document.querySelectorAll('.card');
+            const devInfo = document.querySelector('.dev-info');
+            
+            cards.forEach(card => {
+                card.classList.remove('active', 'shrink', 'shrink-left', 'shrink-right');
+                card.style.removeProperty('filter');
+            });
+            devInfo.classList.remove('active');
+        }
+
+        function updateDevInfo(name, rollNo, branch) {
+            const devInfo = document.querySelector('.dev-info');
+            devInfo.innerHTML = `
+                <p style="--index: 0">
+                    <strong>Name</strong>
+                    <span>${name}</span>
+                </p>
+                <p style="--index: 1">
+                    <strong>Roll Number</strong>
+                    <span>${rollNo}</span>
+                </p>
+                <p style="--index: 2">
+                    <strong>Branch</strong>
+                    <span>${branch}</span>
+                </p>
+            `;
+        }
+
+        // Add click anywhere to reset functionality
+        document.addEventListener('click', function(event) {
+            const cards = document.querySelectorAll('.card');
+            const devInfo = document.querySelector('.dev-info');
+            
+            // If click is outside cards and dev info, reset everything
+            if (!event.target.closest('.card') && !event.target.closest('.dev-info')) {
+                resetCards();
+            }
+        });
+    </script>
+</body>
+</html>
